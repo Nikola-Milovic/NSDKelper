@@ -1,0 +1,3 @@
+rootProject.name='NsdKelper'
+include ':app'
+include ':nsdkelper'
