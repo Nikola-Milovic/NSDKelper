@@ -8,7 +8,7 @@
 # files for the dex VM
 *.dex
 
-# Java class files
+# Java class filesgit
 *.class
 
 # generated files
