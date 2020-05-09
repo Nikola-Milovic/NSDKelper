@@ -2,6 +2,7 @@ package com.nikolam.nsdkelper
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
+import android.util.Log
 
 class NsdKRegistrationListener(val nsdKelper: NsdKelper) : NsdManager.RegistrationListener{
 
@@ -10,19 +11,23 @@ class NsdKRegistrationListener(val nsdKelper: NsdKelper) : NsdManager.Registrati
     }
 
     override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
-        throw UnRegistrationFailedException(ERROR_SOURCE)
+        nsdKelper.logMessage("Service unregistration failed! Error code: $errorCode")
+        nsdKelper.unRegisterFailureCallBack?.invoke(UnRegistrationFailedException(errorCode.toString()))
     }
 
     override fun onServiceUnregistered(serviceInfo: NsdServiceInfo?) {
-        nsdKelper.registerSuccessCallBack?.invoke(serviceInfo)
+        nsdKelper.logMessage("Service unregistered ${serviceInfo?.serviceName}")
+        nsdKelper.unRegisterSuccessCallBack?.invoke(serviceInfo)
     }
 
     override fun onRegistrationFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
-        nsdKelper.registerFailureCallBack?.invoke(RegistrationFailedException(ERROR_SOURCE))
+        nsdKelper.logMessage("Service registration failed! Error code: $errorCode")
+        nsdKelper.registerFailureCallBack?.invoke(RegistrationFailedException(errorCode.toString()))
     }
 
     override fun onServiceRegistered(serviceInfo: NsdServiceInfo?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        nsdKelper.logMessage("Service unregistered ${serviceInfo?.serviceName}")
+        nsdKelper.registerSuccessCallBack?.invoke(serviceInfo)
     }
 
 }

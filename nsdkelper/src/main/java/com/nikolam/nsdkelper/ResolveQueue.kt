@@ -27,8 +27,7 @@ internal class ResolveQueue(nsdKelper: NsdKelper) {
 
     private fun run() {
         val nsdServiceInfo = mTasks.pollFirst()
-//        if (nsdServiceInfo != null) mNsdHelper.resolveService(nsdServiceInfo) else mIsRunning =
-//            false
+        //if (nsdServiceInfo != null) mNsdHelper.resolveService(nsdServiceInfo) else mIsRunning = false
     }
 
 }

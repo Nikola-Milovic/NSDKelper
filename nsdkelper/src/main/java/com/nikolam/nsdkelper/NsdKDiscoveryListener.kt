@@ -2,30 +2,35 @@ package com.nikolam.nsdkelper
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
+import android.util.Log
 
-class NsdKDiscoveryListener : NsdManager.DiscoveryListener{
-    override fun onServiceFound(serviceInfo: NsdServiceInfo?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+class NsdKDiscoveryListener(private val nsdKelper: NsdKelper) : NsdManager.DiscoveryListener{
+
+    override fun onDiscoveryStarted(regType: String) {
+        nsdKelper.logMessage("Service discovery started.")
     }
 
-    override fun onStopDiscoveryFailed(serviceType: String?, errorCode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onServiceFound(service: NsdServiceInfo) {
+        nsdKelper.onServiceFoundCallback?.invoke(service)
+        nsdKelper.logMessage("Service found ${service.serviceName}")
     }
 
-    override fun onStartDiscoveryFailed(serviceType: String?, errorCode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onServiceLost(service: NsdServiceInfo) {
+        nsdKelper.onServiceLostCallback?.invoke(service)
+        nsdKelper.logMessage("Service lost ${service.serviceName}")
     }
 
-    override fun onDiscoveryStarted(serviceType: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onDiscoveryStopped(serviceType: String) {
+        nsdKelper.logMessage("Service discovery stopped.")
     }
 
-    override fun onDiscoveryStopped(serviceType: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
+        nsdKelper.onDiscoveryFailure?.invoke(OnStartDiscoveryFailedException(errorCode.toString()))
+        nsdKelper.logMessage("Starting service discovery failed! Error code: $errorCode")
     }
 
-    override fun onServiceLost(serviceInfo: NsdServiceInfo?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
+        nsdKelper.onDiscoveryFailure?.invoke(OnStopDiscoveryFailedException(errorCode.toString()))
+        nsdKelper.logMessage("Stopping service discovery failed! Error code: $errorCode")
     }
-
 }
