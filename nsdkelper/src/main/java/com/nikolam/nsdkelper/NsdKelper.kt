@@ -17,6 +17,8 @@ class NsdKelper() : DiscoveryTimer.OnTimeoutListener {
     private var mRegistered = false
     private lateinit var registrationListener: NsdManager.RegistrationListener
 
+    lateinit var registeredServiceInfo : NsdServiceInfo
+
 
     internal var registerSuccessCallBack: Success? = null
     internal var registerFailureCallBack: Failure? = null
@@ -30,6 +32,9 @@ class NsdKelper() : DiscoveryTimer.OnTimeoutListener {
     private var discoveryTimeout: Long = 7
 
     private lateinit var discoveryTimer : DiscoveryTimer
+
+    internal var serviceTypeToDiscover : String = "_http._tcp"
+    internal var discoveryServiceName : String? = ""
 
 
     private lateinit var discoveryListener: NsdManager.DiscoveryListener
@@ -71,6 +76,13 @@ class NsdKelper() : DiscoveryTimer.OnTimeoutListener {
         success: Success,
         failure: Failure
     ) {
+        if(sPort == 0) return
+
+        registeredServiceInfo = NsdServiceInfo()
+        registeredServiceInfo.serviceName = sName
+        registeredServiceInfo.serviceType = sType
+        registeredServiceInfo.port = sPort
+
         val serviceInfo = NsdServiceInfo().apply {
             serviceName = sName
             serviceType = sType
@@ -116,11 +128,16 @@ class NsdKelper() : DiscoveryTimer.OnTimeoutListener {
 
     fun startServiceDiscovery(
         serviceType: String,
+        serviceName : String?,
         serviceFound: Success,
         serviceLost: Success,
         failure: Failure
     ) {
         if(!discoveryStarted) {
+
+            serviceTypeToDiscover = serviceType
+            discoveryServiceName = serviceName
+
             onServiceFoundCallback = serviceFound
 
             onServiceLostCallback = serviceLost

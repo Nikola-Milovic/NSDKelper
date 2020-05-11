@@ -2,7 +2,6 @@ package com.nikolam.nsdkelper
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import android.util.Log
 
 class NsdKDiscoveryListener(private val nsdKelper: NsdKelper) : NsdManager.DiscoveryListener{
 
@@ -11,8 +10,14 @@ class NsdKDiscoveryListener(private val nsdKelper: NsdKelper) : NsdManager.Disco
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
-        nsdKelper.onServiceFoundCallback?.invoke(service)
-        nsdKelper.logMessage("Service found ${service.serviceName}")
+        if (service.serviceType == nsdKelper.serviceTypeToDiscover) {
+            if (service.serviceName != nsdKelper.registeredServiceInfo.serviceName) {
+                if (nsdKelper.discoveryServiceName == null || service.serviceName.toLowerCase() == nsdKelper.discoveryServiceName?.toLowerCase()) {
+                    nsdKelper.onServiceFoundCallback?.invoke(service)
+                    nsdKelper.logMessage("Service found ${service.serviceName}")
+                }
+            }
+        }
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
