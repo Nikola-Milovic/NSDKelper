@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         nsdKelper = NsdKelper(this)
 
-
+        nsdKelper.setLogEnabled(true)
 
         viewDataBinding.buttonRegister.setOnClickListener {
             val serviceName: String = text_servicename.text.toString()
@@ -43,32 +43,16 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-
-        /*
-        when {
-                        service?.serviceType != "_ipp._tcp." -> Log.d(
-                            "TAG",
-                            "Unknown Service Type: ${service?.serviceType}"
-                        )
-                        service.serviceName == serviceName -> Log.d(
-                            "TAG",
-                            "Same machine: $serviceName"
-                        );
-                        service.serviceName.contains(serviceName) -> nsdKelper.resolveService(
-                            service
-                        )
-                    }
-         */
         viewDataBinding.buttonDiscover.setOnClickListener {
             val serviceName: String = text_servicename.text.toString()
             val serviceType : String = text_servicename.text.toString()
             val lookfor : String = text_lookingforName.text.toString()
-            nsdKelper.startServiceDiscovery("_androidtvremote._tcp.",
+            nsdKelper.startServiceDiscovery("_http._tcp",
                 serviceFound =
                 { service: NsdServiceInfo? ->
                     //if(service?.serviceName == lookfor) nsdKelper.resolveService(service)
                    // else Log.d("TAG", "Idk + $service")
-                    nsdKelper.resolveService(service, {
+                    nsdKelper.resolveService(service!!, {
                         Log.d("TAG", "Service resolved ---> $it")
                     },
                         {

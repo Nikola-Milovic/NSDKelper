@@ -5,10 +5,10 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.util.Log
 
-typealias Success = (NsdServiceInfo?) -> Unit
+typealias Success = (NsdServiceInfo) -> Unit
 typealias Failure = (java.lang.Exception) -> Unit
 
-class NsdKelper() {
+class NsdKelper() : DiscoveryTimer.OnTimeoutListener {
 
     private val TAG = "NSDKelper"
     private lateinit var mNsdManager: NsdManager
@@ -27,26 +27,31 @@ class NsdKelper() {
 
     // Discovery
     private var discoveryStarted = false
-    private var mDiscoveryTimeout: Long = 15
+    private var discoveryTimeout: Long = 7
+
+    private lateinit var discoveryTimer : DiscoveryTimer
 
 
     private lateinit var discoveryListener: NsdManager.DiscoveryListener
 
-    //   private lateinit var mDiscoveryTimer: DiscoveryTimer
     internal  var onServiceFoundCallback: Success? = null
     internal  var onServiceLostCallback: Success? = null
     internal  var onDiscoveryFailure: Failure? = null
 
     // Resolve
-    private var mAutoResolveEnabled = true
+    private var autoResolveEnabled = true
     private lateinit var resolveQueue: ResolveQueue
+
     private lateinit var resolveListener: NsdManager.ResolveListener
 
     internal var onResolveSuccessCallback: Success? = null
     internal var onResolveFailureCallback: Failure? = null
 
-    // Common
-    private var loggingEnabled = false
+    /**
+     * Whether or not logcat messages are enabled
+     */
+     var loggingEnabled = false
+
 
     /**
      * @param context Context is only needed to create [NsdManager] instance.
@@ -54,53 +59,32 @@ class NsdKelper() {
     constructor(context: Context) : this() {
         mNsdManager =
             context.getSystemService(Context.NSD_SERVICE) as NsdManager
-        registrationListener = NsdKRegistrationListener(this)
-        discoveryListener = NsdKDiscoveryListener(this)
-        resolveListener = NsdKResolveListener(this)
+        discoveryTimer = DiscoveryTimer(this, discoveryTimeout)
+        resolveQueue = ResolveQueue(this)
 
     }
-
-    constructor(context: Context, registrationListener: NsdManager.RegistrationListener? = null, discoveryListener: NsdManager.DiscoveryListener? = null, resolveListener: NsdManager.ResolveListener? = null) : this() {
-        mNsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
-        this.registrationListener = registrationListener ?: NsdKRegistrationListener(this)
-        this.discoveryListener = discoveryListener ?: NsdKDiscoveryListener(this)
-        this.resolveListener = resolveListener ?: NsdKResolveListener(this)
-    }
-
-
-    /**
-     * @return are logcat messages enabled.
-     */
-    fun isLogEnabled(): Boolean {
-        return loggingEnabled
-    }
-
-    /**
-     * Enable or disable logcat messages.
-     * By default it's disabled.
-     *
-     * @param isLogEnabled If true logcat messages are enabled.
-     */
-    fun setLogEnabled(isLogEnabled: Boolean) {
-        loggingEnabled = isLogEnabled
-    }
-
 
     fun registerService(
         sName: String,
         sType: String,
         sPort: Int,
-        success: (NsdServiceInfo?) -> Unit,
-        failure: (Exception?) -> Unit
+        success: Success,
+        failure: Failure
     ) {
         val serviceInfo = NsdServiceInfo().apply {
             serviceName = sName
             serviceType = sType
             port = sPort
         }
+
+        // add findAvaiablePort()
         registerSuccessCallBack = success
 
         registerFailureCallBack = failure
+
+        registrationListener = NsdKRegistrationListener(this)
+
+
 
         mNsdManager.registerService(
             serviceInfo,
@@ -110,8 +94,8 @@ class NsdKelper() {
     }
 
     fun unRegisterService(
-        success: (NsdServiceInfo?) -> Unit,
-        failure: (Exception?) -> Unit
+        success: Success,
+        failure: Failure
     ) {
 
         unRegisterFailureCallBack = failure
@@ -121,10 +105,12 @@ class NsdKelper() {
     }
 
     fun stopServiceDiscovery() {
-        Log.d("TAG", "Stopped discovery")
-        mNsdManager.stopServiceDiscovery(discoveryListener)
-
-
+        if (discoveryStarted) {
+            discoveryStarted = false
+            discoveryTimer.cancel()
+            Log.d(TAG, discoveryListener.toString())
+            mNsdManager.stopServiceDiscovery(discoveryListener)
+        }
     }
 
 
@@ -134,42 +120,65 @@ class NsdKelper() {
         serviceLost: Success,
         failure: Failure
     ) {
-        onServiceFoundCallback = serviceFound
+        if(!discoveryStarted) {
+            onServiceFoundCallback = serviceFound
 
-        onServiceLostCallback = serviceLost
+            onServiceLostCallback = serviceLost
 
-        onDiscoveryFailure = failure
+            onDiscoveryFailure = failure
 
-        mNsdManager.discoverServices(
-            serviceType,
-            NsdManager.PROTOCOL_DNS_SD,
-            discoveryListener
-        )
+            discoveryStarted = true
+
+            discoveryTimer.start()
+
+            discoveryListener = NsdKDiscoveryListener(this)
+
+            Log.d(TAG, discoveryListener.toString())
+
+            mNsdManager.discoverServices(
+                serviceType,
+                NsdManager.PROTOCOL_DNS_SD,
+                discoveryListener
+            )
+        }
 
     }
 
-    fun onNsdServiceResolved(resolvedService: NsdServiceInfo) {
-     //   resolveQueue.next()
-        //  mDiscoveryTimer.reset()
-
+    fun onNsdServiceResolved() {
+        resolveQueue.next()
+        discoveryTimer.reset()
     }
 
-    fun resolveService(nsdServiceInfo: NsdServiceInfo?, success : Success, failure: Failure) {
+    fun resolveService(nsdServiceInfo: NsdServiceInfo, success : Success, failure: Failure) {
 
         onResolveSuccessCallback = success
 
         onResolveFailureCallback = failure
 
-        mNsdManager.resolveService(nsdServiceInfo, resolveListener)
+        resolveListener = NsdKResolveListener(this)
+
+        //mNsdManager.resolveService(nsdServiceInfo, resolveListener)
+        resolveQueue.enqueue(nsdServiceInfo)
     }
 
+     ////////////////////////
+    ///     Internal     ///
+   ////////////////////////
 
-    /// Internal
+
+    internal fun internalResolveService(nsdServiceInfo: NsdServiceInfo) {
+        mNsdManager.resolveService(nsdServiceInfo, NsdKResolveListener(this))
+    }
+
 
     internal fun logMessage(message : String){
         if (loggingEnabled){
             Log.d( TAG, message)
         }
+    }
+
+    override fun onNsdDiscoveryTimeout() {
+        stopServiceDiscovery()
     }
 
 }

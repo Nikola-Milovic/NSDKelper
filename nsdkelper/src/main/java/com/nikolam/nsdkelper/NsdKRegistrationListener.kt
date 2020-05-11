@@ -10,23 +10,23 @@ class NsdKRegistrationListener(val nsdKelper: NsdKelper) : NsdManager.Registrati
         private const val ERROR_SOURCE = "android.net.nsd.NsdHelper.RegistrationListener"
     }
 
-    override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+    override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
         nsdKelper.logMessage("Service unregistration failed! Error code: $errorCode")
         nsdKelper.unRegisterFailureCallBack?.invoke(UnRegistrationFailedException(errorCode.toString()))
     }
 
-    override fun onServiceUnregistered(serviceInfo: NsdServiceInfo?) {
-        nsdKelper.logMessage("Service unregistered ${serviceInfo?.serviceName}")
+    override fun onServiceUnregistered(serviceInfo: NsdServiceInfo) {
+        nsdKelper.logMessage("Service unregistered ${serviceInfo.serviceName}")
         nsdKelper.unRegisterSuccessCallBack?.invoke(serviceInfo)
     }
 
-    override fun onRegistrationFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+    override fun onRegistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
         nsdKelper.logMessage("Service registration failed! Error code: $errorCode")
         nsdKelper.registerFailureCallBack?.invoke(RegistrationFailedException(errorCode.toString()))
     }
 
-    override fun onServiceRegistered(serviceInfo: NsdServiceInfo?) {
-        nsdKelper.logMessage("Service unregistered ${serviceInfo?.serviceName}")
+    override fun onServiceRegistered(serviceInfo: NsdServiceInfo) {
+        nsdKelper.logMessage("Service unregistered ${serviceInfo.serviceName}")
         nsdKelper.registerSuccessCallBack?.invoke(serviceInfo)
     }
 

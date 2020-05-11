@@ -27,10 +27,12 @@ class NsdKDiscoveryListener(private val nsdKelper: NsdKelper) : NsdManager.Disco
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
         nsdKelper.onDiscoveryFailure?.invoke(OnStartDiscoveryFailedException(errorCode.toString()))
         nsdKelper.logMessage("Starting service discovery failed! Error code: $errorCode")
+        nsdKelper.stopServiceDiscovery()
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
         nsdKelper.onDiscoveryFailure?.invoke(OnStopDiscoveryFailedException(errorCode.toString()))
+        nsdKelper.stopServiceDiscovery()
         nsdKelper.logMessage("Stopping service discovery failed! Error code: $errorCode")
     }
 }
