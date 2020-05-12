@@ -1,5 +1,6 @@
 package com.nikolam.nsdkelper
 
+import android.annotation.SuppressLint
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 
@@ -9,6 +10,7 @@ class NsdKDiscoveryListener(private val nsdKelper: NsdKelper) : NsdManager.Disco
         nsdKelper.logMessage("Service discovery started.")
     }
 
+    @SuppressLint("DefaultLocale")
     override fun onServiceFound(service: NsdServiceInfo) {
         if (service.serviceType == nsdKelper.serviceTypeToDiscover) {
             if (service.serviceName != nsdKelper.registeredServiceInfo.serviceName) {
