@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         nsdKelper = NsdKelper(this)
 
-        nsdKelper.setLogEnabled(true)
+        nsdKelper.loggingEnabled = true
 
         viewDataBinding.buttonRegister.setOnClickListener {
             val serviceName: String = text_servicename.text.toString()
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             val serviceName: String = text_servicename.text.toString()
             val serviceType : String = text_servicename.text.toString()
             val lookfor : String = text_lookingforName.text.toString()
-            nsdKelper.startServiceDiscovery("_http._tcp",
+            nsdKelper.startServiceDiscovery("_http._tcp", "name",
                 serviceFound =
                 { service: NsdServiceInfo? ->
                     //if(service?.serviceName == lookfor) nsdKelper.resolveService(service)
