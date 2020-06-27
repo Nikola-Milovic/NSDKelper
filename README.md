@@ -1,8 +1,9 @@
 # NSDKelper
 [Android Library] An Network Service Discovery Helper library written in Kotlin
 
-[WIP] rewriting and modernizing the library from Rafakob https://github.com/rafakob/NsdHelper 
+Rewriting and modernizing the library from Rafakob https://github.com/rafakob/NsdHelper 
 
+If anyone wants to test the library, contribute, create an issue, feel free to! I am looking for feedback and how to improve it further.
 
 # Download
 
