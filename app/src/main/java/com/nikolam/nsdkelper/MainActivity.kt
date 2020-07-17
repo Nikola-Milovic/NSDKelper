@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
+
+
+
         nsdKelper.unRegisterService(success = {
             Log.d("TAG", "Service unregistered---> " + it.toString())
         },
