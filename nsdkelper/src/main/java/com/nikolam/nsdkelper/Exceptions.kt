@@ -1,6 +1,5 @@
 package com.nikolam.nsdkelper
 
-import android.net.nsd.NsdServiceInfo
 import java.lang.Exception
 
 

@@ -8,7 +8,7 @@ internal class DiscoveryTimer(
     seconds: Long
 ) {
 
-    lateinit var timer: CountDownTimer
+    var timer: CountDownTimer
 
     fun start() {
         timer.start()

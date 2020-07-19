@@ -1,4 +1,4 @@
-package com.nikolam.nsdkelper
+package com.nikolam.nsdkelperApp
 
 import org.junit.Test
 

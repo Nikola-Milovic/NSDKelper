@@ -1,12 +1,12 @@
-package com.nikolam.nsdkelper
+package com.nikolam.nsdkelperApp
 
-import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.nikolam.nsdkelper.databinding.ActivityMainBinding
+import com.nikolam.nsdkelper.NsdKelper
+import com.nikolam.nsdkelperApp.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -20,7 +20,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
 
-        viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        viewDataBinding = DataBindingUtil.setContentView(this,
+            R.layout.activity_main
+        )
 
         nsdKelper = NsdKelper(this)
 
@@ -44,9 +46,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewDataBinding.buttonDiscover.setOnClickListener {
-            val serviceName: String = text_servicename.text.toString()
-            val serviceType : String = text_servicename.text.toString()
-            val lookfor : String = text_lookingforName.text.toString()
+//            val serviceName: String = text_servicename.text.toString()
+//            val serviceType : String = text_servicename.text.toString()
+//            val lookfor : String = text_lookingforName.text.toString()
             nsdKelper.startServiceDiscovery("_http._tcp", "name",
                 serviceFound =
                 { service: NsdServiceInfo? ->
